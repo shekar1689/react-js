@@ -1,23 +1,21 @@
 import { object } from "prop-types";
 import React, { useEffect,useState} from "react";
+import axios from 'axios';
 
 export default function RestApp(){
+  const regions=["Americas","Africa","Oceania","Europe","Asia","Antarctic"]
   const [data,updateData]=useState([])
   const [lang,updateLang]=useState([])
   const [order,updateOrder]=useState('ASC')
   const [poporder,updatePopOrder]=useState('ASC')
   const [fetchData,UpdateFetchData]=useState('https://restcountries.com/v3.1/all')
  
-  useEffect(()=>{
-    fetch(fetchData)
-    .then(function(res){
-      res.json().then(function(result){
-        updateData(result)
-        console.log(result)
-      })
+  useEffect(() => {
+    const contryData = axios.get(fetchData).then((res) =>{
+      // console.log(res.data)
+      updateData(res.data);
     })
   },[fetchData])
-  // console.log(lang)
   
   const selectVal=(e)=>{
     switch(e.target.value){
@@ -72,11 +70,9 @@ function LoadData(e){
     case "all":
       UpdateFetchData('https://restcountries.com/v3.1/all')
       break;
-    case "europe":
-      alert("filtering")
-      UpdateFetchData('https://restcountries.com/v3.1/region/europe')
-      break;
-    
+      default:
+        UpdateFetchData(`https://restcountries.com/v3.1/region/${e.target.value}`)
+      
   }
   
 }
@@ -88,26 +84,24 @@ function LoadData(e){
       <div className="div_one">
 
       <select onChange={selectVal}>
-       <option value="country">Country</option>
+       <option value="country">Country- HERE</option>
        <option value="pop">Population</option>
      </select>
       </div>
      <div className="drop_two">
       <select onChange={LoadData}>
+      <option disabled selected>Select By Region</option>
         <option value="all">All</option>
-        {
-          data.map((drop_data)=>
-          <>
-          <option value={drop_data.region} key={drop_data.region}>{drop_data.region}</option>
-          </>)
-        }
+        {regions.map(animal => (
+        <option value={animal} selected>{animal}</option>
+      ))}
       </select>
      </div>
     </div>
     <table className="table">
       <thead>
         <tr>
-        <th onClick={sortData}>Name</th>
+        <th onClick={sortData}>Name{order==='DSC' ?<span  className='fa fa-arrow-down'></span>:<span  className="fa fa-arrow-up"></span>}</th>
         <th>Capital</th>
         <th>Flag</th>
         <th onClick={sortPop}>Population</th>
