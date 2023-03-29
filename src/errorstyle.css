@@ -1,0 +1,26 @@
+h2{
+    color:red;
+}
+.error_dis{
+    margin-top: 100px;
+}
+.img_dis{
+position: relative;
+}  
+.error_text{
+    position: absolute;
+    top:30%;
+    right:10%;
+}  
+.error_text h3{
+    
+        color:white;
+        background-color: black;
+        padding:10px;
+        transition: 3s;
+} 
+.error_text h3:hover{
+    transform: translateX(50%);
+    transition: 3s;
+}
+

@@ -1,6 +1,9 @@
 import { object } from "prop-types";
 import React, { useEffect,useState} from "react";
 import axios from 'axios';
+import uuid from 'react-uuid';
+import { ErrorApp } from "./ErrorComponent";
+// import { TableApp } from "./tableComponent";
 
 export default function RestApp(){
   const regions=["Americas","Africa","Oceania","Europe","Asia","Antarctic"]
@@ -8,15 +11,29 @@ export default function RestApp(){
   const [lang,setLang]=useState([])
   const [order,setOrder]=useState('')
   const [poporder,setPopOrder]=useState('')
-  const [fetchData,setFetchData]=useState('https://restcountries.com/v3.1/all')
+  const [fetchData,setFetchData]=useState("")
+ 
   const nocountries=data.status||data.message
  
   useEffect(() => {
-    const contryData = axios.get(fetchData).then((res) =>{
-      // console.log(res.data)
-      setData(res.data);
-    })
+    if(fetchData!==""){
+      LoadRegions(fetchData)
+    }
+    else{
+      Complete_Data()
+    }
   },[fetchData])
+
+const LoadRegions=async()=>{
+  const region_data=await fetch(fetchData)
+  const result=await region_data.json()
+  setData(result)
+}
+  const Complete_Data=async () =>{
+    const response=await fetch('https://restcountries.com/v3.1/all')
+    const result=await response.json()
+    setData(result)
+  }
   
   const selectVal=(e)=>{
     switch(e.target.value){
@@ -79,7 +96,7 @@ const sortData=(p)=>{
 function LoadData(e){
   switch(e.target.value){
     case "all":
-    setFetchData('https://restcountries.com/v3.1/all')
+      Complete_Data()
       break;
       default:
         setFetchData(`https://restcountries.com/v3.1/region/${e.target.value}`)   
@@ -88,7 +105,7 @@ function LoadData(e){
 }
 function searchCountries(e){
   console.log(e.target.value)
-  if(e.target.value!=""){
+  if(e.target.value!==""){
     try{
       fetch(`https://restcountries.com/v3.1/name/${e.target.value}`)
       .then(function(res){
@@ -97,12 +114,13 @@ function searchCountries(e){
         })
       })
     }
-    catch(error){
-     console.log("hello")
-   }  
+    catch(err){
+      console.log(err)
+    
+   } 
   }
   else{
-    setFetchData('https://restcountries.com/v3.1/all')
+    Complete_Data()
   }
   
 }
@@ -121,8 +139,8 @@ function searchCountries(e){
     
       <div className="div_two">
 
-      <select onChange={selectVal} className="form-select">
-      <option default disabled>Sort</option>
+      <select defaultValue={'DEFAULT'} onChange={selectVal} className="form-select">
+      <option value="DEFAULT" disabled>Sort</option>
        <option value="country-asc">Country-Asc</option>
        <option value="country-dsc">Country-Dsc</option>
        <option value="pop-asc">Population-Asc</option>
@@ -130,31 +148,31 @@ function searchCountries(e){
      </select>
       </div>
      <div className="drop_three">
-      <select onChange={LoadData} className="form-select">
-      <option disabled selected>Select By Region</option>
+      <select defaultValue={'DEFAULT'} onChange={LoadData} className="form-select">
+      <option disabled value="DEFAULT" >Select By Region</option>
         <option value="all">All</option>
         {regions.map(animal => (
-        <option value={animal}>{animal}</option>
+        <option value={animal} key={animal}>{animal}</option>
       ))}
       </select>
      </div>
     </div>
-    <table className="table  table-striped table-hover mt-3">
+    {!nocountries?(  <table className="table  table-striped table-hover mt-3">
       <thead className="table-primary">
         <tr>
-        <th>Name{order==='DSC' ?<span className='fa fa-arrow-down ms-4'></span>:order==='ASC'?<span  className="fa fa-arrow-up ms-4"></span>:<span  className="fa  ms-4"></span>}</th>
+        <th ><span className="fa fa-globe me-3"></span>Name{order==='DSC' ?<span className='fa fa-arrow-down ms-4'></span>:order==='ASC'?<span  className="fa fa-arrow-up ms-4"></span>:<span  className="fa  ms-4"></span>}</th>
         <th>Capital</th>
         <th>Flag</th>
         <th>Population{poporder==='DSC' ?<span className='fa fa-arrow-down ms-2'></span>:poporder==='ASC'?<span  className="fa fa-arrow-up ms-2"></span>:<span  className="fa  ms-4"></span>}</th>
         <th>Languages</th>
-        {/* <th>Region</th> */}
+
         </tr>
         
       </thead>
       <tbody className="table-dark">
-        {!nocountries?( data.map((res_data)=>
+        {data.map((res_data,index)=>
             <>
-            <tr>
+            <tr key={index}>
               <td >{res_data.name['common']}</td>
               <td>{res_data.capital}</td>
               <td><img src={res_data.flags.png} alt="loading" /></td>
@@ -163,7 +181,11 @@ function searchCountries(e){
                 <ul>
               { res_data.languages && Object.keys(res_data.languages)?.map(
       (answer, index) => (
-          <li key={index}>{res_data.languages[answer]}</li>
+        <>
+        <li key={index}>{res_data.languages[answer]}</li>
+        </>
+          
+  
       )
      )}
      </ul>
@@ -171,15 +193,12 @@ function searchCountries(e){
               
             </tr>
             </>
-          )):(
-            <tr>
-            <td>Request Country Not Found...</td>
-            </tr>
-          )
-        }
+          )}
       </tbody>
 
-    </table>
+    </table>):
+    <center><ErrorApp/></center>
+    }
     </div>
     
     </>
