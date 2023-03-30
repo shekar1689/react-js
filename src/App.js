@@ -43,15 +43,17 @@ const LoadRegions=async()=>{
     const filter_data=result
     setData(filter_data.slice(0,pagecount))
     setTotalData(result)
-    // setTotalPages(Math.ceil(totalData.length/pagecount))
-    // console.log(totalpages)
-
   }
   
   function pagefun(e){
     setData(totalData.slice(e.target.name*10-10,e.target.name*10))
     setPageData(e.target.name)
     setcurrentPage(e.target.name)
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: 'smooth'
+    });
   }
   
   const selectVal=(e)=>{
@@ -113,7 +115,6 @@ const sortData=(p)=>{
 }
 function prevfun(){
   var prev_data=pageData-1
-  alert(pageData)
  setData(totalData.slice(prev_data*10-10,pageData*10-10))
 }
 function nxtfun(){
@@ -239,7 +240,7 @@ function searchCountries(e){
       </>
       )
     }
-    <button disabled={pageData==25} onClick={nxtfun}>Nxt</button>
+    <button disabled={pageData==25} onClick={nxtfun}>Next</button>
     </>
     </center>
     
