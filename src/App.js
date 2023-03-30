@@ -8,12 +8,16 @@ import { ErrorApp } from "./ErrorComponent";
 export default function RestApp(){
   const regions=["Americas","Africa","Oceania","Europe","Asia","Antarctic"]
   const [data,setData]=useState([])
+  const [totalData,setTotalData]=useState([])
   const [lang,setLang]=useState([])
   const [order,setOrder]=useState('')
   const [poporder,setPopOrder]=useState('')
   const [fetchData,setFetchData]=useState("")
- 
+  // const [pagecount,setPageCount]=useState(0) not used anywhere
+  const [pageData,setPageData]=useState([])
+  const [totalpages,setTotalPages]=useState(25)
   const nocountries=data.status||data.message
+  
  
   useEffect(() => {
     if(fetchData!==""){
@@ -22,6 +26,8 @@ export default function RestApp(){
     else{
       Complete_Data()
     }
+    
+    
   },[fetchData])
 
 const LoadRegions=async()=>{
@@ -32,7 +38,15 @@ const LoadRegions=async()=>{
   const Complete_Data=async () =>{
     const response=await fetch('https://restcountries.com/v3.1/all')
     const result=await response.json()
-    setData(result)
+    const filter_data=result
+    setData(filter_data.slice(0,10))
+    setTotalData(result)
+    console.log(totalpages)
+  }
+  
+  function pagefun(e){
+    alert(e.target.name)
+    setData(totalData.slice(e.target.name*10-10,e.target.name*10))
   }
   
   const selectVal=(e)=>{
@@ -148,6 +162,7 @@ function searchCountries(e){
      </select>
       </div>
      <div className="drop_three">
+      <span className="p-3">Total Records:{totalData.length}</span>
       <select defaultValue={'DEFAULT'} onChange={LoadData} className="form-select">
       <option disabled value="DEFAULT" >Select By Region</option>
         <option value="all">All</option>
@@ -157,7 +172,7 @@ function searchCountries(e){
       </select>
      </div>
     </div>
-    {!nocountries?(  <table className="table  table-striped table-hover mt-3">
+    {!nocountries?( <> <table className="table  table-striped table-hover mt-3">
       <thead className="table-primary">
         <tr>
         <th ><span className="fa fa-globe me-3"></span>Name{order==='DSC' ?<span className='fa fa-arrow-down ms-4'></span>:order==='ASC'?<span  className="fa fa-arrow-up ms-4"></span>:<span  className="fa  ms-4"></span>}</th>
@@ -196,7 +211,22 @@ function searchCountries(e){
           )}
       </tbody>
 
-    </table>):
+    </table>
+    <center className="p-3">
+    {
+      Array(totalpages).fill(null).map((page,ind)=>
+      <>
+      <button name={ind+1} onClick={pagefun}>{ind+1}</button>
+      </>
+      )
+    }
+    </center>
+    
+    </>
+    
+    )
+    
+    :
     <center><ErrorApp/></center>
     }
     </div>
