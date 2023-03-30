@@ -4,6 +4,7 @@ import axios from 'axios';
 import uuid from 'react-uuid';
 import { ErrorApp } from "./ErrorComponent";
 // import { TableApp } from "./tableComponent";
+import './App.css'
 
 export default function RestApp(){
   const regions=["Americas","Africa","Oceania","Europe","Asia","Antarctic"]
@@ -13,9 +14,10 @@ export default function RestApp(){
   const [order,setOrder]=useState('')
   const [poporder,setPopOrder]=useState('')
   const [fetchData,setFetchData]=useState("")
-  // const [pagecount,setPageCount]=useState(0) not used anywhere
+  const [pagecount,setPageCount]=useState(10)
   const [pageData,setPageData]=useState([])
   const [totalpages,setTotalPages]=useState(25)
+  const [currentPage,setcurrentPage]=useState(1);
   const nocountries=data.status||data.message
   
  
@@ -39,14 +41,17 @@ const LoadRegions=async()=>{
     const response=await fetch('https://restcountries.com/v3.1/all')
     const result=await response.json()
     const filter_data=result
-    setData(filter_data.slice(0,10))
+    setData(filter_data.slice(0,pagecount))
     setTotalData(result)
-    console.log(totalpages)
+    // setTotalPages(Math.ceil(totalData.length/pagecount))
+    // console.log(totalpages)
+
   }
   
   function pagefun(e){
-    alert(e.target.name)
     setData(totalData.slice(e.target.name*10-10,e.target.name*10))
+    setPageData(e.target.name)
+    setcurrentPage(e.target.name)
   }
   
   const selectVal=(e)=>{
@@ -106,7 +111,18 @@ const sortData=(p)=>{
     setPopOrder('ASC')
   }
 }
+function prevfun(){
+  var prev_data=pageData-1
+  alert(pageData)
+ setData(totalData.slice(prev_data*10-10,pageData*10-10))
+}
+function nxtfun(){
+  var prev_data=pageData
+  alert(pageData)
+ setData(totalData.slice((prev_data*10),(prev_data*10)+10))
+ setPageData(parseInt(pageData)+1)
 
+}
 function LoadData(e){
   switch(e.target.value){
     case "all":
@@ -213,13 +229,18 @@ function searchCountries(e){
 
     </table>
     <center className="p-3">
+      <> 
+      <button disabled={pageData==1} onClick={prevfun}>Prev</button>
     {
+      
       Array(totalpages).fill(null).map((page,ind)=>
       <>
-      <button name={ind+1} onClick={pagefun}>{ind+1}</button>
+      <button name={ind+1} className={`${currentPage==ind+1?"btn-primary":""}`} onClick={pagefun}>{ind+1}</button>
       </>
       )
     }
+    <button disabled={pageData==25} onClick={nxtfun}>Nxt</button>
+    </>
     </center>
     
     </>
