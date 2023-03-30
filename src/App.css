@@ -2,3 +2,19 @@
   color: white;
   background-color: blue;
 }
+.pagin_ation{
+  display:flex;
+  justify-content: center;
+
+  }
+.pagin_ation li{
+  list-style-type: none;
+  border:1px solid yellow;
+  padding:20px;
+}
+
+.active-link{
+  background-color: blue;
+  color:white;
+  text-decoration: none;
+}

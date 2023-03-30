@@ -5,6 +5,7 @@ import uuid from 'react-uuid';
 import { ErrorApp } from "./ErrorComponent";
 // import { TableApp } from "./tableComponent";
 import './App.css'
+import ReactPaginate from 'react-paginate';
 
 export default function RestApp(){
   const regions=["Americas","Africa","Oceania","Europe","Asia","Antarctic"]
@@ -19,8 +20,31 @@ export default function RestApp(){
   const [totalpages,setTotalPages]=useState(25)
   const [currentPage,setcurrentPage]=useState(1);
   const nocountries=data.status||data.message
+  // const itemsperpage=10;
+
+
+  const itemsperpage = Math.ceil(totalData.length / totalpages);
+  const [itemOffset, setItemOffset] = useState(0);
+  const endOffset = itemOffset + itemsperpage;
+  console.log(`Loading items from ${itemOffset} to ${endOffset}`);
   
- 
+
+  const handlePageClick = (event) => {
+    const newOffset = (event.selected * itemsperpage) % totalData.length;
+    console.log((event.selected * itemsperpage))
+    console.log(
+      `User requested page number ${event.selected}, which is offset ${newOffset}`
+    );
+    setItemOffset(newOffset);
+    setData(totalData.slice(itemOffset, endOffset));
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: 'smooth'
+    });
+  };
+
+
   useEffect(() => {
     if(fetchData!==""){
       LoadRegions(fetchData)
@@ -229,7 +253,7 @@ function searchCountries(e){
       </tbody>
 
     </table>
-    <center className="p-3">
+    {/* <center className="p-3">
       <> 
       <button disabled={pageData==1} onClick={prevfun}>Prev</button>
     {
@@ -243,7 +267,21 @@ function searchCountries(e){
     <button disabled={pageData==25} onClick={nxtfun}>Next</button>
     </>
     </center>
-    
+     */}
+<center>
+<ReactPaginate
+        breakLabel="....."
+        nextLabel="Next >"
+        onPageChange={handlePageClick}
+        pageRangeDisplayed={4}
+        pageCount={25}
+        previousLabel="<Previous"
+        renderOnZeroPageCount={null}
+        containerClassName="pagin_ation"
+        activeLinkClassName="active-link"
+      />
+</center>
+  
     </>
     
     )
