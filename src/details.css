@@ -1,0 +1,47 @@
+.img_dis .img-layer{
+    position: absolute;
+    top:0;
+    /* right: 0; */
+    background-color:rgba(48, 46, 38,0.3);
+    width:1272px;
+    height:80%;
+}
+.img_dis{
+    position: relative;
+}
+.img_dis img{
+    width:100%;
+     height: 80%;
+}
+.text-layer h1{
+    color:white;
+    font-weight: bold;
+    text-shadow:3px 3px 10px black;
+    background-color: black;
+    padding:2px 5px;
+}
+.text-layer{
+    position: absolute;
+    left:30%;
+    top:10%;
+    color:white;
+}
+.text-layer ul li{
+    color:black
+}
+.text-layer *{
+    padding:10px;
+    text-shadow:3px 3px 10px black;
+}
+.map{
+    margin-top: -60px;
+}
+.details-bg{
+background-color: rgba(48, 46, 38,0.3);
+padding:20px;
+margin:0 0 10px 0;
+}
+.details-bg *{
+    text-align: center;
+    background-color: rgb(119, 125, 133,0.4);
+}

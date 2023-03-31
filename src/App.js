@@ -215,9 +215,9 @@ function searchCountries(e){
     </div>
     {!nocountries?( <> <BrowserRouter>
     <Routes>
-      <Route path='/contact' element={<DetailsApp/>}></Route>
-      </Routes>
-    <table className="table  table-striped table-hover mt-3">
+      <Route path='/contact/:name' element={<DetailsApp/>}></Route>
+      <Route path='/' element={<>
+        <table className="table  table-striped table-hover mt-3">
       <thead className="table-primary">
         <tr>
         <th ><span className="fa fa-globe me-3"></span>Name{order==='DSC' ?<span className='fa fa-arrow-down ms-4'></span>:order==='ASC'?<span  className="fa fa-arrow-up ms-4"></span>:<span  className="fa  ms-4"></span>}</th>
@@ -233,7 +233,7 @@ function searchCountries(e){
         {data.map((res_data,index)=>
             <>
             <tr key={index} >
-              <td><Link to='contact'>{res_data.name['common']}</Link></td>
+              <td><Link to={`/contact/${res_data.name['common']}`}>{res_data.name['common']}</Link></td>
               <td>{res_data.capital}</td>
               <td><img src={res_data.flags.png} alt="loading" /></td>
               <td>{res_data.population}</td>
@@ -257,10 +257,8 @@ function searchCountries(e){
       </tbody>
 
     </table>
-    
-    </BrowserRouter>
-<center>
-<ReactPaginate
+    <center>
+   <ReactPaginate
         breakLabel="....."
         nextLabel="Next >"
         onPageChange={handlePageClick}
@@ -271,7 +269,12 @@ function searchCountries(e){
         containerClassName="pagin_ation"
         activeLinkClassName="active-link"
       />
-</center>
+     </center>
+    </>}></Route>
+      </Routes>
+    
+    </BrowserRouter>
+
   
     </>
     
