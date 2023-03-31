@@ -7,8 +7,16 @@ import './App.css'
 import ReactPaginate from 'react-paginate';
 import { DetailsApp } from "./DetailsComponent";
 
+import {Store} from './userLogin'
+import './login.css'
+import { useFormik } from "formik";
+import { createContext } from "react";
+
+
 export default function RestApp(){
   const regions=["Americas","Africa","Oceania","Europe","Asia","Antarctic"]
+  const [userdetails,setuserdetails]=useState({name:"sai@gmail.com",pwd:1234567890})
+  const [formdetails,setformdetails]=useState({name:"",pwd:""})
   const [data,setData]=useState([])
   const [totalData,setTotalData]=useState([])
   const [lang,setLang]=useState([])
@@ -20,14 +28,11 @@ export default function RestApp(){
   const [totalpages,setTotalPages]=useState(25)
   const [currentPage,setcurrentPage]=useState(1);
   const nocountries=data.status||data.message
-  // const itemsperpage=10;
-
 
   const itemsperpage = Math.ceil(totalData.length / totalpages);
   const [itemOffset, setItemOffset] = useState(0);
   const endOffset = itemOffset + itemsperpage;
   console.log(`Loading items from ${itemOffset} to ${endOffset}`);
-  
 
   const handlePageClick = (event) => {
     const newOffset = (event.selected * itemsperpage) % totalData.length;
@@ -179,6 +184,18 @@ function searchCountries(e){
   }
   
 }
+const formk=useFormik({
+  initialValues: {
+      email: '',
+      password: '',
+    },
+    onSubmit: (values) => {
+      var val=JSON.stringify(values)
+     alert(val.target.value)
+      
+      },
+    onReset: (values, { resetForm }) => resetForm()
+})
   return(
     <>
     <div className="container">
@@ -216,7 +233,8 @@ function searchCountries(e){
     {!nocountries?( <> <BrowserRouter>
     <Routes>
       <Route path='/contact/:name' element={<DetailsApp/>}></Route>
-      <Route path='/' element={<>
+      <Route path='/' element={userdetails.name===formdetails.name&&userdetails.pwd===formdetails.pwd?
+      <>
         <table className="table  table-striped table-hover mt-3">
       <thead className="table-primary">
         <tr>
@@ -270,7 +288,36 @@ function searchCountries(e){
         activeLinkClassName="active-link"
       />
      </center>
-    </>}></Route>
+    </>:<><div className="container">
+            <div className="row">
+                <div className="offset-md-4 col-md-4">
+                    <div className="form-data">
+                        <h3 className="text-center">Login Here..</h3>
+                    <form onSubmit={formk.handleSubmit}>
+  <div className="form-group">
+    <label for="exampleInputEmail1">Email address</label>
+    <input type="email" className="form-control"  name="email" onChange={formk.handleChange} value={formk.values.firstName} placeholder="Enter email"/>
+    <small id="emailHelp" className="form-text text-muted">We'll never share your email with anyone else.</small>
+  </div>
+  <div className="form-group">
+    <label for="exampleInputPassword1">Password</label>
+    <input type="password" className="form-control" name="password" onChange={formk.handleChange} value={formk.values.password} placeholder="Password"/>
+  </div>
+  <div className="form-group form-check">
+    <input type="checkbox" className="form-check-input" id="exampleCheck1"/>
+    <label className="form-check-label" for="exampleCheck1">Check me out</label>
+  </div>
+  <button type="submit" className="btn btn-primary">Submit</button>
+</form>
+                    </div>
+
+               
+                </div>
+          
+            
+            </div>
+
+        </div></>}></Route>
       </Routes>
     
     </BrowserRouter>
