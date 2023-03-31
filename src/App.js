@@ -1,11 +1,11 @@
 import { object } from "prop-types";
 import React, { useEffect,useState} from "react";
 import axios from 'axios';
-import uuid from 'react-uuid';
+import {BrowserRouter,Routes,Route,Link} from 'react-router-dom';
 import { ErrorApp } from "./ErrorComponent";
-// import { TableApp } from "./tableComponent";
 import './App.css'
 import ReactPaginate from 'react-paginate';
+import { DetailsApp } from "./DetailsComponent";
 
 export default function RestApp(){
   const regions=["Americas","Africa","Oceania","Europe","Asia","Antarctic"]
@@ -186,8 +186,8 @@ function searchCountries(e){
     <div className="drop_downs d-flex justify-content-between">
       <div className="div_one">
         <div className="input-group mb-3">
-    <input type="text" className="form-control w-25" onChange={searchCountries} placeholder="Search"/>
-    <button type="button" className="btn btn-primary" >Search</button>
+    <input type="text" className="form-control w-25" onChange={searchCountries}  placeholder="Search"/>
+    <button type="button" className="btn btn-primary" ><i className="fa-solid fa-magnifying-glass me-3"></i>Search</button>
       </div>
 
       </div>
@@ -213,13 +213,17 @@ function searchCountries(e){
       </select>
      </div>
     </div>
-    {!nocountries?( <> <table className="table  table-striped table-hover mt-3">
+    {!nocountries?( <> <BrowserRouter>
+    <Routes>
+      <Route path='/contact' element={<DetailsApp/>}></Route>
+      </Routes>
+    <table className="table  table-striped table-hover mt-3">
       <thead className="table-primary">
         <tr>
         <th ><span className="fa fa-globe me-3"></span>Name{order==='DSC' ?<span className='fa fa-arrow-down ms-4'></span>:order==='ASC'?<span  className="fa fa-arrow-up ms-4"></span>:<span  className="fa  ms-4"></span>}</th>
         <th>Capital</th>
-        <th>Flag</th>
-        <th>Population{poporder==='DSC' ?<span className='fa fa-arrow-down ms-2'></span>:poporder==='ASC'?<span  className="fa fa-arrow-up ms-2"></span>:<span  className="fa  ms-4"></span>}</th>
+        <th><i className="fa-solid fa-flag me-3"></i>Flag</th>
+        <th><i className="fa-solid fa-people-group me-3"></i>Population{poporder==='DSC' ?<span className='fa fa-arrow-down ms-2'></span>:poporder==='ASC'?<span  className="fa fa-arrow-up ms-2"></span>:<span  className="fa  ms-4"></span>}</th>
         <th>Languages</th>
 
         </tr>
@@ -228,8 +232,8 @@ function searchCountries(e){
       <tbody className="table-dark">
         {data.map((res_data,index)=>
             <>
-            <tr key={index}>
-              <td >{res_data.name['common']}</td>
+            <tr key={index} >
+              <td><Link to='contact'>{res_data.name['common']}</Link></td>
               <td>{res_data.capital}</td>
               <td><img src={res_data.flags.png} alt="loading" /></td>
               <td>{res_data.population}</td>
@@ -253,21 +257,8 @@ function searchCountries(e){
       </tbody>
 
     </table>
-    {/* <center className="p-3">
-      <> 
-      <button disabled={pageData==1} onClick={prevfun}>Prev</button>
-    {
-      
-      Array(totalpages).fill(null).map((page,ind)=>
-      <>
-      <button name={ind+1} className={`${currentPage==ind+1?"btn-primary":""}`} onClick={pagefun}>{ind+1}</button>
-      </>
-      )
-    }
-    <button disabled={pageData==25} onClick={nxtfun}>Next</button>
-    </>
-    </center>
-     */}
+    
+    </BrowserRouter>
 <center>
 <ReactPaginate
         breakLabel="....."

@@ -28,3 +28,11 @@
 .selected{
   background-color: blue;
 }
+.disabled a{
+  
+  cursor:no-drop;
+}
+.disabled{
+  background-color: rgb(223, 240, 237);
+  cursor:no-drop;
+}
