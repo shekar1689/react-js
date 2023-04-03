@@ -1,6 +1,7 @@
 import { object } from "prop-types";
 import React, { useEffect,useState} from "react";
 import axios from 'axios';
+import * as yup from "yup";
 import {BrowserRouter,Routes,Route,Link} from 'react-router-dom';
 import { ErrorApp } from "./ErrorComponent";
 import './App.css'
@@ -11,12 +12,13 @@ import {Store} from './userLogin'
 import './login.css'
 import { useFormik } from "formik";
 import { createContext } from "react";
+import { Formik, Form, Field, ErrorMessage } from 'formik';
 
 
 export default function RestApp(){
   const regions=["Americas","Africa","Oceania","Europe","Asia","Antarctic"]
-  const [userdetails,setuserdetails]=useState({name:"sai@gmail.com",pwd:1234567890})
-  const [formdetails,setformdetails]=useState({name:"",pwd:""})
+  const [userdetails,setuserdetails]=useState({email:"sai@gmail.com",pwd:1234567890})
+  const [formdetails,setformdetails]=useState({email:"",pwd:""})
   const [data,setData]=useState([])
   const [totalData,setTotalData]=useState([])
   const [lang,setLang]=useState([])
@@ -27,7 +29,9 @@ export default function RestApp(){
   const [pageData,setPageData]=useState([])
   const [totalpages,setTotalPages]=useState(25)
   const [currentPage,setcurrentPage]=useState(1);
+  const [formError,setfromError]=useState('')
   const nocountries=data.status||data.message
+  const [registervalue,setRegisterVlaue]=useState(false)
 
   const itemsperpage = Math.ceil(totalData.length / totalpages);
   const [itemOffset, setItemOffset] = useState(0);
@@ -49,7 +53,23 @@ export default function RestApp(){
     });
   };
 
-
+  function validate(values){
+    const errors = {email:"",password:"",conformpassword:""};
+    if (values.email === userdetails.email) {
+      errors.email = "Email Already Exits";
+    }
+    if (values.email != userdetails.email) {
+      errors.email = "";
+    }
+    
+    if(values.password!=values.conformPassword){
+      errors.conformpassword="Password must match"
+    }
+    if(values.password==values.conformPassword){
+      errors.conformpassword=""
+    }
+    return errors;
+  };
   useEffect(() => {
     if(fetchData!==""){
       LoadRegions(fetchData)
@@ -184,23 +204,90 @@ function searchCountries(e){
   }
   
 }
+// function fieldvalidates(){
+//   const obj={email:"",pwd:""}
+//   if(userdetails.email!=formdetails.email){
+//     obj.email="invalid email"
+//   }
+//   return obj
+// }
 const formk=useFormik({
   initialValues: {
       email: '',
       password: '',
     },
+    validateOnBlur:true,
+    validateOnChange:true,
+    validationSchema:yup.object().shape({
+      email: yup.string().required('Required field').test('match', 'Passwords do not match', function (value) {
+        return this.parent.email ==value;
+      }),
+      password: yup.string().required('Required field').test('age-match', 'Age must match', function (value) {
+        return this.parent.password == value
+      }),}),
     onSubmit: (values) => {
-      var val=JSON.stringify(values)
-     alert(val.target.value)
-      
-      },
-    onReset: (values, { resetForm }) => resetForm()
+      alert(JSON.parse(JSON.stringify(values.email)))
+      setformdetails({email:JSON.parse(JSON.stringify(values.email)),pwd:parseInt(JSON.parse(JSON.stringify(values.password)))})
+      if(userdetails.email==formdetails.email&&userdetails.pwd==formdetails.pwd){
+        alert("Login Success")
+      }
+      else if(userdetails.email!=formdetails.email){
+        setfromError("Invalid Email or password")
+      }
+      else{
+        setfromError("Invalid Email or password")
+      }
+      // fieldvalidates()
+    },
+
+    
 })
+const formik = useFormik({
+  initialValues: {
+    email: '',
+    password: '',
+    confirmPassword: '',
+  },
+  onSubmit: values => {
+    alert(values)
+    setformdetails({email:JSON.parse(JSON.stringify(values.email)),pwd:parseInt(JSON.parse(JSON.stringify(values.password)))})
+    setuserdetails({email:JSON.parse(JSON.stringify(values.email)),pwd:parseInt(JSON.parse(JSON.stringify(values.password)))})
+
+  },
+  validate: values => {
+    const errors = {};
+    if (!values.email) {
+      errors.email = 'Email is required';
+    } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(values.email)) {
+      errors.email = 'Invalid email address';
+    }
+
+    if (!values.password) {
+      errors.password = 'Password is required';
+    } else if (values.password.length < 6) {
+      errors.password = 'Password must be at least 6 characters long';
+    }
+
+    if (!values.confirmPassword) {
+      errors.confirmPassword = 'Confirm Password is required';
+    } else if (values.password !== values.confirmPassword) {
+      errors.confirmPassword = 'Passwords do not match';
+    }
+
+    return errors;
+  },
+});
   return(
     <>
     <div className="container">
     <h1 style={{textAlign:"center"}}>Country API Data</h1>
-    <div className="drop_downs d-flex justify-content-between">
+    
+    {!nocountries?( <> <BrowserRouter>
+    <Routes>
+      <Route path='/contact/:name' element={<DetailsApp/>}></Route>
+      <Route path='/' element={userdetails.email===formdetails.email&&userdetails.pwd===formdetails.pwd?
+      <>
+      <div className="drop_downs d-flex justify-content-between">
       <div className="div_one">
         <div className="input-group mb-3">
     <input type="text" className="form-control w-25" onChange={searchCountries}  placeholder="Search"/>
@@ -230,11 +317,6 @@ const formk=useFormik({
       </select>
      </div>
     </div>
-    {!nocountries?( <> <BrowserRouter>
-    <Routes>
-      <Route path='/contact/:name' element={<DetailsApp/>}></Route>
-      <Route path='/' element={userdetails.name===formdetails.name&&userdetails.pwd===formdetails.pwd?
-      <>
         <table className="table  table-striped table-hover mt-3">
       <thead className="table-primary">
         <tr>
@@ -288,7 +370,39 @@ const formk=useFormik({
         activeLinkClassName="active-link"
       />
      </center>
-    </>:<><div className="container">
+    </>:registervalue?<><div className="container">
+      <div className="row">
+        <div className="offset-md-4 col-md-4">
+          <div className="register_form">
+          <h1>User Registartion</h1>
+          <form onSubmit={formik.handleSubmit}>
+      <label htmlFor="email">Email:</label>
+      <input type="email" id="email" className="form-control" {...formik.getFieldProps('email')} />
+
+      {formik.touched.email && formik.errors.email ? (
+        <div>{formik.errors.email}</div>
+      ) : null}
+
+      <label htmlFor="password">Password:</label>
+      <input type="password" id="password"  className="form-control" {...formik.getFieldProps('password')} />
+
+      {formik.touched.password && formik.errors.password ? (
+        <div>{formik.errors.password}</div>
+      ) : null}
+
+      <label htmlFor="confirmPassword">Confirm Password:</label>
+      <input type="password" id="confirmPassword" className="form-control" {...formik.getFieldProps('confirmPassword')} />
+
+      {formik.touched.confirmPassword && formik.errors.confirmPassword ? (
+        <div>{formik.errors.confirmPassword}</div>
+      ) : null}
+
+      <button type="submit" className="btn btn-primary mt-3">Register & Login</button>
+      <button type="button" className="btn btn-primary mt-3 ms-3" onClick={()=>setRegisterVlaue(false)}>Back to Login</button>
+    </form>
+          </div>
+        </div>
+        </div></div></>:<><div className="container">
             <div className="row">
                 <div className="offset-md-4 col-md-4">
                     <div className="form-data">
@@ -297,17 +411,23 @@ const formk=useFormik({
   <div className="form-group">
     <label for="exampleInputEmail1">Email address</label>
     <input type="email" className="form-control"  name="email" onChange={formk.handleChange} value={formk.values.firstName} placeholder="Enter email"/>
-    <small id="emailHelp" className="form-text text-muted">We'll never share your email with anyone else.</small>
+    <span>{formk.errors.email}</span>
+    <span>{formError}</span>
   </div>
   <div className="form-group">
     <label for="exampleInputPassword1">Password</label>
     <input type="password" className="form-control" name="password" onChange={formk.handleChange} value={formk.values.password} placeholder="Password"/>
+    <span>{formk.errors.password}</span><br/>
+    <span>{formError}</span>
   </div>
   <div className="form-group form-check">
     <input type="checkbox" className="form-check-input" id="exampleCheck1"/>
+    
     <label className="form-check-label" for="exampleCheck1">Check me out</label>
+    
   </div>
   <button type="submit" className="btn btn-primary">Submit</button>
+  <button type="button" className="btn btn-primary m-3" onClick={()=>setRegisterVlaue(true)}>Register</button>
 </form>
                     </div>
 
